@@ -1,4 +1,5 @@
 ﻿using System;
+using InvestmentAppProd.Api;
 using InvestmentAppProd.Models;
 using NUnit.Framework;
 
@@ -10,7 +11,7 @@ namespace InvestmentAppProd.Tests
         [Test]
         public void GetValueAt_WithSimpleInterest_ShouldCalculateValue()
         {
-            var investment = new Investment("Investment", new DateTime(2020, 5, 4), "Simple", 3.875, 10000);
+            var investment = new Investment("Investment", new DateTime(2020, 5, 4), InterestType.Simple, 3.875, 10000);
             
             // Same month, different day
             Assert.AreEqual(10000.00, investment.GetValueAt(new DateTime(2020, 5, 18)), 0.001);
@@ -32,7 +33,7 @@ namespace InvestmentAppProd.Tests
         [Test]
         public void GetValueAt_WithCompoundInterest_ShouldCalculateValue()
         {
-            var investment = new Investment("Investment", new DateTime(2020, 5, 4), "Compound", 3.875, 10000);
+            var investment = new Investment("Investment", new DateTime(2020, 5, 4), InterestType.Compound, 3.875, 10000);
             
             // Same month, different day
             Assert.AreEqual(10000.00, investment.GetValueAt(new DateTime(2020, 5, 18)), 0.001);

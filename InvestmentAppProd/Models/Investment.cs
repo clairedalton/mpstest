@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using InvestmentAppProd.Api;
 using InvestmentAppProd.Utilities;
 
 namespace InvestmentAppProd.Models
@@ -16,7 +17,7 @@ namespace InvestmentAppProd.Models
 
 		public DateTime StartDate { get; set; }
 
-		public string InterestType { get; set; }
+		public InterestType InterestType { get; set; }
 
 		public double InterestRate { get; set; }
 
@@ -28,7 +29,7 @@ namespace InvestmentAppProd.Models
 		{
 		}
 
-		public Investment(string name, DateTime startDate, string interestType, double rate, double principal)
+		public Investment(string name, DateTime startDate, InterestType interestType, double rate, double principal)
 		{
 			Name = name;
 			StartDate = startDate;
@@ -46,8 +47,9 @@ namespace InvestmentAppProd.Models
 
 			return InterestType switch
 			{
-				"Simple" => InterestCalculations.CalculateSimpleInterest(PrincipalAmount, annualRate, years),
-				_ => InterestCalculations.CalculateCompoundInterest(PrincipalAmount, annualRate, years, 12)
+				InterestType.Simple => InterestCalculations.CalculateSimpleInterest(PrincipalAmount, annualRate, years),
+				InterestType.Compound => InterestCalculations.CalculateCompoundInterest(PrincipalAmount, annualRate, years, 12),
+				_ => throw new InvalidOperationException($"Unknown interest type {InterestType}")
 			};
 		}
 

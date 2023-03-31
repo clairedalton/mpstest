@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using InvestmentAppProd.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using InvestmentAppProd.Models;
 using InvestmentAppProd.Data;
@@ -53,12 +54,20 @@ namespace InvestmentAppProd.Controllers
 
 
         [HttpPost]
-        public ActionResult<Investment> AddInvestment([FromBody] Investment investment)
+        public ActionResult<Investment> AddInvestment([FromBody] AddInvestmentRequest request)
         {
             try
             {
-                if (investment.StartDate > DateTime.Now)
+                if (request.StartDate > DateTime.Now)
                     return BadRequest("Investment Start Date cannot be in the future.");
+
+                // TODO - Possibly migrate this to use AutoMapper or similar...
+                var investment = new Investment(
+                    request.Name,
+                    request.StartDate ?? throw new Exception(),
+                    request.InterestType ?? throw new Exception(),
+                    request.InterestRate ?? throw new Exception(),
+                    request.PrincipalAmount ?? throw new Exception());
 
                 investment.CalculateValue();
                 _context.ChangeTracker.Clear();

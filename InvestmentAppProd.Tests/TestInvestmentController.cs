@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System.Threading;
+using InvestmentAppProd.Api;
+using InvestmentAppProd.Api.Models;
 
 namespace InvestmentAppProd.Tests
 {
@@ -47,7 +49,7 @@ namespace InvestmentAppProd.Tests
                 {
                     Name = "Investment 1",
                     StartDate = DateTime.Parse("2022-03-01"),
-                    InterestType = "Simple",
+                    InterestType = InterestType.Simple,
                     InterestRate = 3.875,
                     PrincipalAmount = 10000
                 });
@@ -56,7 +58,7 @@ namespace InvestmentAppProd.Tests
                 {
                     Name = "Investment 2",
                     StartDate = DateTime.Parse("2022-04-01"),
-                    InterestType = "Simple",
+                    InterestType = InterestType.Simple,
                     InterestRate = 4,
                     PrincipalAmount = 15000
                 });
@@ -65,7 +67,7 @@ namespace InvestmentAppProd.Tests
                 {
                     Name = "Investment 3",
                     StartDate = DateTime.Parse("2022-05-01"),
-                    InterestType = "Compound",
+                    InterestType = InterestType.Simple,
                     InterestRate = 5,
                     PrincipalAmount = 20000
                 });
@@ -121,17 +123,17 @@ namespace InvestmentAppProd.Tests
         {
             // Arrange
             var controller = new InvestmentController(context);
-            var newInvestnment = new Investment
+            var request = new AddInvestmentRequest
             {
                 Name = "Investment 4",
                 StartDate = DateTime.Parse("2022-05-01"),
-                InterestType = "Simple",
+                InterestType = InterestType.Simple,
                 InterestRate = 7.7,
                 PrincipalAmount = 25000
             };
 
             // Act
-            var result = controller.AddInvestment(newInvestnment);
+            var result = controller.AddInvestment(request);
             var obj = result.Result as ObjectResult;
             //var objInvResult = obj.Value as Investment;
 
@@ -151,7 +153,7 @@ namespace InvestmentAppProd.Tests
             {
                 Name = "Investment 2",
                 StartDate = DateTime.Parse("2022-06-01"),
-                InterestType = "Compound",
+                InterestType = InterestType.Compound,
                 InterestRate = 8,
                 PrincipalAmount = 30000
             };
