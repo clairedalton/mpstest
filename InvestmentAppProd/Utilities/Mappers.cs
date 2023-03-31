@@ -24,6 +24,5 @@ namespace InvestmentAppProd.Utilities
         {
             return investments.Select(investment => InvestmentToResponse(investment, now));
         }
-        
     }
 }

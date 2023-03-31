@@ -8,7 +8,9 @@ using InvestmentAppProd.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using InvestmentAppProd.Models;
 using InvestmentAppProd.Data;
+using InvestmentAppProd.Services;
 using InvestmentAppProd.Utilities;
+using Microsoft.Extensions.Internal;
 
 namespace InvestmentAppProd.Controllers
 {
@@ -17,19 +19,21 @@ namespace InvestmentAppProd.Controllers
     public class InvestmentController : Controller
     {
         private readonly InvestmentDBContext _context;
+        private readonly IWallClock _clock;
 
-        public InvestmentController(InvestmentDBContext context)
+        public InvestmentController(InvestmentDBContext context, IWallClock clock)
         {
             _context = context;
+            _clock = clock;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Investment>> FetchAllInvestments()
+        public ActionResult<IEnumerable<InvestmentResponse>> FetchAllInvestments()
         {
             try
             {
                 var investments = _context.Investments.ToList();
-                return Ok(Mappers.InvestmentsToResponses(investments, DateTime.Now));
+                return Ok(Mappers.InvestmentsToResponses(investments, _clock.Now));
             }
             catch (Exception e)
             {
@@ -38,7 +42,7 @@ namespace InvestmentAppProd.Controllers
         }
 
         [HttpGet("name")]
-        public ActionResult<Investment> FetchInvestment([FromQuery] string name)
+        public ActionResult<InvestmentResponse> FetchInvestment([FromQuery] string name)
         {
             try
             {
@@ -46,7 +50,7 @@ namespace InvestmentAppProd.Controllers
                 if (investment == null)
                     return NotFound();
 
-                return Ok(Mappers.InvestmentToResponse(investment, DateTime.Now));
+                return Ok(Mappers.InvestmentToResponse(investment, _clock.Now));
             }
             catch (Exception e)
             {
@@ -55,26 +59,22 @@ namespace InvestmentAppProd.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Investment> AddInvestment([FromBody] AddInvestmentRequest request)
+        public ActionResult<InvestmentResponse> AddInvestment([FromBody] AddInvestmentRequest request)
         {
             try
             {
-                if (request.StartDate > DateTime.Now)
+                if (request.StartDate > _clock.Now)
                     return BadRequest("Investment Start Date cannot be in the future.");
 
-                // TODO - Possibly migrate this to use AutoMapper or similar...
-                var investment = new Investment(
-                    request.Name,
-                    request.StartDate ?? throw new Exception(),
-                    request.InterestType ?? throw new Exception(),
-                    request.InterestRate ?? throw new Exception(),
-                    request.PrincipalAmount ?? throw new Exception());
+                var investment = CreateInvestmentFromRequest(request);
 
                 _context.ChangeTracker.Clear();
                 _context.Investments.Add(investment);
                 _context.SaveChanges();
 
-                return CreatedAtAction("FetchAllInvestments", new { name = investment.Name } , Mappers.InvestmentToResponse(investment, DateTime.Now));
+                return CreatedAtAction("FetchAllInvestments",
+                    new { name = investment.Name },
+                    Mappers.InvestmentToResponse(investment, _clock.Now));
             }
             catch (DbUpdateException dbE)
             {
@@ -94,17 +94,10 @@ namespace InvestmentAppProd.Controllers
                 if (name != request.Name)
                     return BadRequest("Name does not match the Investment you are trying to update.");
 
-                if (request.StartDate > DateTime.Now)
+                if (request.StartDate > _clock.Now)
                     return BadRequest("Investment Start Date cannot be in the future.");
-
-                // TODO - Possibly migrate this to use AutoMapper or similar...
-                var investment = new Investment(
-                    request.Name,
-                    request.StartDate ?? throw new Exception(),
-                    request.InterestType ?? throw new Exception(),
-                    request.InterestRate ?? throw new Exception(),
-                    request.PrincipalAmount ?? throw new Exception());
-
+                
+                var investment = CreateInvestmentFromRequest(request);
                 _context.ChangeTracker.Clear();
                 _context.Entry(investment).State = EntityState.Modified;
                 _context.SaveChanges();
@@ -125,6 +118,7 @@ namespace InvestmentAppProd.Controllers
                 var investment = _context.Investments.Find(name);
                 if (investment == null)
                 {
+                    // Depending on how this API is intended to be used, it may be better to return NoContent here
                     return NotFound();
                 }
                 _context.ChangeTracker.Clear();
@@ -137,7 +131,18 @@ namespace InvestmentAppProd.Controllers
             {
                 return BadRequest(e.ToString());
             }
+        }
 
+        private static Investment CreateInvestmentFromRequest(AddInvestmentRequest request)
+        {
+            // TODO - Possibly migrate this to use AutoMapper or similar...
+            var investment = new Investment(
+                request.Name,
+                request.StartDate ?? throw new Exception(),
+                request.InterestType ?? throw new Exception(),
+                request.InterestRate ?? throw new Exception(),
+                request.PrincipalAmount ?? throw new Exception());
+            return investment;
         }
     }
 }

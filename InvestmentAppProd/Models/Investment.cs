@@ -40,6 +40,9 @@ namespace InvestmentAppProd.Models
 		{
 			// Interest rate is divided by 100.
 			var annualRate = InterestRate / 100;
+			
+			// Technically, the counts the number of ends of months since the start date
+			// Not entirely sure if this counts as "AND the period is rounded to the nearest month"
 			var months = 12 * (referenceTime.Year - StartDate.Year) + referenceTime.Month - StartDate.Month;
 			var years = months / 12.0d;
 

@@ -15,6 +15,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using InvestmentAppProd.Data;
+using InvestmentAppProd.Services;
 
 namespace InvestmentAppProd
 {
@@ -43,6 +44,8 @@ namespace InvestmentAppProd
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "InvestmentAppProd", Version = "v1" });
             });
+
+            services.AddTransient<IWallClock, WallClock>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
