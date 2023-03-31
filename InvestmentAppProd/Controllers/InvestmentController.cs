@@ -24,7 +24,7 @@ namespace InvestmentAppProd.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Investment>> FetchInvestment()
+        public ActionResult<IEnumerable<Investment>> FetchAllInvestments()
         {
             try
             {
@@ -74,7 +74,7 @@ namespace InvestmentAppProd.Controllers
                 _context.Investments.Add(investment);
                 _context.SaveChanges();
 
-                return CreatedAtAction("AddInvestment", investment.Name, investment);
+                return CreatedAtAction("FetchAllInvestments", new { name = investment.Name } , Mappers.InvestmentToResponse(investment, DateTime.Now));
             }
             catch (DbUpdateException dbE)
             {

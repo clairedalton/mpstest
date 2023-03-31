@@ -38,7 +38,6 @@ namespace InvestmentAppProd
                 {
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
                 });
             services.AddSwaggerGen(c =>
             {
