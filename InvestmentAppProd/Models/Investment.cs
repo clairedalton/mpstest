@@ -41,10 +41,7 @@ namespace InvestmentAppProd.Models
 		{
 			// Interest rate is divided by 100.
 			var annualRate = InterestRate / 100;
-
-			// TODO - Does this even make sense to take an absolute value?
-			var months = 12 * (StartDate.Year - referenceTime.Year) + StartDate.Month - referenceTime.Month;
-			months = Math.Abs(months);
+			var months = 12 * (referenceTime.Year - StartDate.Year) + referenceTime.Month - StartDate.Month;
 			var years = months / 12.0d;
 
 			return InterestType switch
