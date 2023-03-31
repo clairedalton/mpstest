@@ -1,3 +1,43 @@
+# Test Notes
+
+I've spent just over 2 hours on this, just getting some of the more obvious things.
+
+The main focus was making the existing code more easily testable and a little less
+fragile:
+
+- Interest rate calculations have been extracted from `Investment`, and have
+  their own unit tests
+- When calculating the current value of an investment, the current time is now
+  passed in, allowing for simpler testing.
+- Tests are added for `Investment` to verify the correct values are being calculated
+  based on the given time. Renamed to `GetValueAt`.
+- A clock implementation is passed in to the `InvestmentController`, allowing for
+  tests that rely on the current time.
+- Additional tests have been added to `TestInvestmentController` to test investments
+  that start in the future.
+- The `InterestType` is now an Enum, and can not represent any value other than `Simple`
+  and `Compound`.
+- The exposed API now has separate types for `AddInvestmentRequest` and `InvestmentResponse`.
+  This allows separating the API model from the internal data model, although they are
+  currently almost identical.
+- Added validation attributes to `AddInvestmentRequest`, preventing invalid requests from
+  being accepted by the framework.
+- Removed CurrentValue from `Investment`, added to `InvestmentResponse` instead. It is filled
+  by the mapper method using `GetValueAt`, and no longer needs to be updated when the investment
+  is created or updated.
+
+I have not made any major modifications to the `InvestmentController` and none to the EF
+code. Since this is a simple CRUD controller, it's fine for now.
+
+One major notable issue - the existing code does not handle timezones. This works OK for a
+simple test application. If we were deploying this as a production application, we would need
+to handle timezones explicitly.
+
+I haven't looked at that, but I would likely have a timezone setting somewhere (possibly in
+`appsettings.json`), and ensure calculations are done in the correct timezone. Using
+NodaTime may generally be advisable, since it has types specifically for calendar dates in
+a specific timezone.
+
 # MYP Senior Engineer Test
 
 Build an investment app API. 
