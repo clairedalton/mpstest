@@ -72,7 +72,7 @@ namespace InvestmentAppProd.Controllers
                 _context.Investments.Add(investment);
                 _context.SaveChanges();
 
-                return CreatedAtAction("FetchAllInvestments",
+                return CreatedAtAction("FetchInvestment",
                     new { name = investment.Name },
                     Mappers.InvestmentToResponse(investment, _clock.Now));
             }
