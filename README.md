@@ -29,6 +29,11 @@ fragile:
 I have not made any major modifications to the `InvestmentController` and none to the EF
 code. Since this is a simple CRUD controller, it's fine for now.
 
+As a future improvement, it might be worth splitting the `InvestmentController` into a service,
+which handles all the business logic, and a controller that purely handles the HTTP API. As
+simple as this is, it does not seem like a high priority here. If Investments were to evolve
+to be more than a simple data repository, it would be a good idea.
+
 One major notable issue - the existing code does not handle timezones. This works OK for a
 simple test application. If we were deploying this as a production application, we would need
 to handle timezones explicitly.
