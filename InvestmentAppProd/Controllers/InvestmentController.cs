@@ -8,6 +8,7 @@ using InvestmentAppProd.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using InvestmentAppProd.Models;
 using InvestmentAppProd.Data;
+using InvestmentAppProd.Utilities;
 
 namespace InvestmentAppProd.Controllers
 {
@@ -27,7 +28,8 @@ namespace InvestmentAppProd.Controllers
         {
             try
             {
-                return Ok(_context.Investments.ToList());
+                var investments = _context.Investments.ToList();
+                return Ok(Mappers.InvestmentsToResponses(investments, DateTime.Now));
             }
             catch (Exception e)
             {
@@ -44,14 +46,13 @@ namespace InvestmentAppProd.Controllers
                 if (investment == null)
                     return NotFound();
 
-                return Ok(investment);
+                return Ok(Mappers.InvestmentToResponse(investment, DateTime.Now));
             }
             catch (Exception e)
             {
                 return NotFound(e.ToString());
             }
         }
-
 
         [HttpPost]
         public ActionResult<Investment> AddInvestment([FromBody] AddInvestmentRequest request)
@@ -69,7 +70,6 @@ namespace InvestmentAppProd.Controllers
                     request.InterestRate ?? throw new Exception(),
                     request.PrincipalAmount ?? throw new Exception());
 
-                investment.CalculateValue();
                 _context.ChangeTracker.Clear();
                 _context.Investments.Add(investment);
                 _context.SaveChanges();
@@ -87,17 +87,24 @@ namespace InvestmentAppProd.Controllers
         }
 
         [HttpPut("name")]
-        public ActionResult UpdateInvestment([FromQuery] string name, [FromBody] Investment investment)
+        public ActionResult UpdateInvestment([FromQuery] string name, [FromBody] AddInvestmentRequest request)
         {
             try
             {
-                if (name != investment.Name)
+                if (name != request.Name)
                     return BadRequest("Name does not match the Investment you are trying to update.");
 
-                if (investment.StartDate > DateTime.Now)
+                if (request.StartDate > DateTime.Now)
                     return BadRequest("Investment Start Date cannot be in the future.");
 
-                investment.CalculateValue();
+                // TODO - Possibly migrate this to use AutoMapper or similar...
+                var investment = new Investment(
+                    request.Name,
+                    request.StartDate ?? throw new Exception(),
+                    request.InterestType ?? throw new Exception(),
+                    request.InterestRate ?? throw new Exception(),
+                    request.PrincipalAmount ?? throw new Exception());
+
                 _context.ChangeTracker.Clear();
                 _context.Entry(investment).State = EntityState.Modified;
                 _context.SaveChanges();

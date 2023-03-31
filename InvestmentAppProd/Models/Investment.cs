@@ -23,8 +23,6 @@ namespace InvestmentAppProd.Models
 
 		public double PrincipalAmount { get; set; }
 
-		public double CurrentValue { get; set; } = 0;
-
 		public Investment()
 		{
 		}
@@ -51,11 +49,6 @@ namespace InvestmentAppProd.Models
 				InterestType.Compound => InterestCalculations.CalculateCompoundInterest(PrincipalAmount, annualRate, years, 12),
 				_ => throw new InvalidOperationException($"Unknown interest type {InterestType}")
 			};
-		}
-
-		public void CalculateValue()
-		{
-			CurrentValue = GetValueAt(DateTime.Now);
 		}
 	}
 }
